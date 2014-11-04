@@ -10,8 +10,5 @@ sed -i -e 's/\$releasever/latest/g' /etc/yum.repos.d/amzn*repo
 # Better teach yum repo server that latest is a valid alias for the highest 6X, 7X ... number
 echo 6X >/etc/yum/vars/releasever
 
-# Dump repos to know what was used here
-yum repolist
-
 # install some packages
-yum -y install tomcat8 java-1.8.0-openjdk mongodb-server httpd mysql-server
+time yum -y install tomcat8 java-1.8.0-openjdk mongodb-server httpd mysql-server
