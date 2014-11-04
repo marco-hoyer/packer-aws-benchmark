@@ -1,0 +1,25 @@
+{
+  "variables": {
+    "provisioning_script": "provision.sh",
+    "source_ami": "ami-6e7bd919",
+    "creation_time": "{{isotime `20060102150405`}}"
+  },
+  "builders": [{
+    "type": "amazon-chroot",
+    "region": "eu-west-1",
+    "source_ami": "{{user `source_ami`}}",
+    "ami_virtualization_type": "hvm",
+    "ami_name": "packer_benchmark_ami_{{user `creation_time`}}",
+    "copy_files": [
+      "/etc/resolv.conf",
+      "/etc/yum/vars/awsregion",
+      "/etc/yum/vars/awsdomain",
+      "/etc/yum.repos.d/amzn-main.repo",
+      "/etc/yum.repos.d/amzn-updates.repo"
+    ]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "script": "{{user `provisioning_script`}}"
+  }]
+}
