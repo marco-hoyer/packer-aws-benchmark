@@ -151,8 +151,8 @@
                             "cd /tmp\n",
                             "git clone https://github.com/marco-hoyer/packer-aws-benchmark.git\n",
                             "cd /tmp/packer-aws-benchmark\n",
-                            "chmod +x bootstrap_packer_devenv.sh\n",
-                            "./bootstrap_packer_devenv.sh"
+                            "chmod +x bootstrap_packer.sh\n",
+                            "./bootstrap_packer.sh"
                         ]]
                     }
                 }
