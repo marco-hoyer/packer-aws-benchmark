@@ -14,10 +14,13 @@ import time
 
 class DynamoDbMetricWriter(object):
 
-    def __init__(self, region, table_name, benchmark_config, localrun):
+    def __init__(self, region, table_name, benchmark_config, localrun, debug):
         logging.basicConfig(format='%(asctime)s %(levelname)s %(module)s: %(message)s',
                             datefmt='%d.%m.%Y %H:%M:%S',level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
+
         self.benchmark_config = benchmark_config
         self.localrun = localrun
 
@@ -37,12 +40,15 @@ class DynamoDbMetricWriter(object):
 
         try:
             item = self.table.get_item(instance_type=_get_instance_type(self.localrun), config=self.benchmark_config)
+            self.logger.debug("Found existing entity in dynamodb")
         except ItemNotFound:
+            self.logger.debug("No existing entity found in dynamodb, creating new one")
             item = Item(self.table, data={'instance_type': _get_instance_type(self.localrun), 'config': self.benchmark_config})
 
         build_time_json = item['build_time']
 
         if build_time_json:
+            self.logger.debug("Extending existing metric list for build_time")
             # extend existing list
             build_time = json.loads(build_time_json)
             build_time.extend(build_time_metrics)
@@ -52,14 +58,18 @@ class DynamoDbMetricWriter(object):
 
         if item.needs_save():
             item.partial_save()
+            self.logger.debug("Saved item to dynamodb")
 
 
 class TimedTestRunner(object):
 
-    def __init__(self, dynamodb_metric_writer, command):
+    def __init__(self, dynamodb_metric_writer, command, debug):
         logging.basicConfig(format='%(asctime)s %(levelname)s %(module)s: %(message)s',
                             datefmt='%d.%m.%Y %H:%M:%S',level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        if debug:
+            self.logger.setLevel(logging.DEBUG)
+
         self.dynamodb = dynamodb_metric_writer
         self.command = command
 
@@ -89,6 +99,7 @@ class TimedTestRunner(object):
             self.logger.debug("StdErr: {0}".format(err))
             return None
         else:
+            self.logger.debug("Single execution took {0}s".format(elapsed))
             return round(elapsed, 3)
 
     def run_looped_test(self, count):
@@ -98,6 +109,7 @@ class TimedTestRunner(object):
             if build_time is not None:
                 build_time_metrics.append(build_time)
             i += 1
+        self.logger.debug("Collected metrics to be stored in dynamodb: {0}".format(build_time_metrics))
         self.dynamodb.put_metrics(build_time_metrics)
 
 
@@ -117,10 +129,11 @@ def parse_arguments():
     parser.add_argument('--region', help="AWS region to operate within", type=str, default="eu-west-1")
     parser.add_argument('--dynamodbtable', help="Dynamodb table name", type=str, default="packer_build_metrics")
     parser.add_argument("--localrun", help="Run on ec2 instance", action="store_true", default=False)
+    parser.add_argument("--debug", help="Set Loglevel to debug", action="store_true", default=False)
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = parse_arguments()
-    dynamodb_metric_writer = DynamoDbMetricWriter(args.region, args.dynamodbtable, args.config, args.localrun)
-    runner = TimedTestRunner(dynamodb_metric_writer, args.executable)
+    dynamodb_metric_writer = DynamoDbMetricWriter(args.region, args.dynamodbtable, args.config, args.localrun, args.debug)
+    runner = TimedTestRunner(dynamodb_metric_writer, args.executable, args.debug)
     runner.run_looped_test(args.iterations)

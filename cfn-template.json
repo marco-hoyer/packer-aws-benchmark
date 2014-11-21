@@ -85,6 +85,29 @@
                                 }
                             ]
                         }
+                    },
+                    {
+                        "PolicyName": "dynamodb-access",
+                        "PolicyDocument": {
+                            "Version" : "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Action" : [
+                                        "dynamodb:*"
+                                    ],
+                                    "Effect": "Allow",
+                                    "Resource": {
+                                        "Fn::Join": [ ":", [
+                                            "arn",
+                                            "aws",
+                                            "dynamodb",
+                                            {"Ref": "AWS::Region"},
+                                            {"Ref": "AWS::AccountId"},
+                                            "table/packer_build_metrics"
+                                        ] ]}
+                                }
+                            ]
+                        }
                     }
                 ]
             }
@@ -182,7 +205,7 @@
                             "git clone https://github.com/marco-hoyer/packer-aws-benchmark.git\n",
                             "cd /tmp/packer-aws-benchmark\n",
                             "chmod +x bootstrap_packer.sh\n",
-                            "./bootstrap_packer.sh\n",
+                            "./bootstrap_packer.sh master\n",
                             "python /tmp/packer-aws-benchmark/benchmark/timed_test_runner.py 'packer.io build template.json' standard\n"
                         ]]
                     }
