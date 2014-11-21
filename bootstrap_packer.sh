@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# configure branch in $1 if needed, otherwise master is used as default
+BRANCH=${1:-master}
+
 export GOPATH=$(pwd)
 echo "Using gopath: $GOPATH"
 
@@ -10,8 +13,11 @@ cd $GOPATH/src/github.com/mitchellh
 
 echo "Cloning packer into $(pwd)"
 git clone https://github.com/ImmobilienScout24/packer.git
-PATH=$PATH:/tmp/packer-aws-benchmark/bin
 cd $GOPATH/src/github.com/mitchellh/packer
+git fetch
+git checkout $BRANCH
+
+PATH=$PATH:/tmp/packer-aws-benchmark/bin
 
 echo "Building packer"
 make updatedeps
