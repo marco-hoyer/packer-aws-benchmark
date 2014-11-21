@@ -4,12 +4,12 @@ from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.exceptions import ItemNotFound
 from boto.exception import NoAuthHandlerFound
 from boto.utils import get_instance_metadata
+from time import time
 import subprocess
 import argparse
 import logging
 import sys
 import json
-import time
 
 
 class DynamoDbMetricWriter(object):
@@ -43,7 +43,8 @@ class DynamoDbMetricWriter(object):
             self.logger.debug("Found existing entity in dynamodb")
         except ItemNotFound:
             self.logger.debug("No existing entity found in dynamodb, creating new one")
-            item = Item(self.table, data={'instance_type': _get_instance_type(self.localrun), 'config': self.benchmark_config})
+            item = Item(self.table, data={'instance_type': _get_instance_type(self.localrun),
+                                          'config': self.benchmark_config})
 
         build_time_json = item['build_time']
 
@@ -83,9 +84,9 @@ class TimedTestRunner(object):
 
     def _run_once(self):
         try:
-            start = time.clock()
+            start = time()
             (exit_code, out, err) = self._execute(self.command)
-            end = time.clock()
+            end = time()
             elapsed = end - start
         except Exception as e:
             self.logger.error(
@@ -100,7 +101,8 @@ class TimedTestRunner(object):
             return None
         else:
             self.logger.debug("Single execution took {0}s".format(elapsed))
-            return round(elapsed, 3)
+            # 1s resolution is enough, eases handling
+            return int(elapsed)
 
     def run_looped_test(self, count):
         build_time_metrics = []
@@ -109,7 +111,8 @@ class TimedTestRunner(object):
             if build_time is not None:
                 build_time_metrics.append(build_time)
             i += 1
-        self.logger.debug("Collected metrics to be stored in dynamodb: {0}".format(build_time_metrics))
+        self.logger.debug(
+            "Collected metrics to be stored in dynamodb (rounded to full seconds): {0}".format(build_time_metrics))
         self.dynamodb.put_metrics(build_time_metrics)
 
 
@@ -134,6 +137,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    dynamodb_metric_writer = DynamoDbMetricWriter(args.region, args.dynamodbtable, args.config, args.localrun, args.debug)
+    dynamodb_metric_writer = DynamoDbMetricWriter(args.region, args.dynamodbtable,
+                                                  args.config, args.localrun, args.debug)
     runner = TimedTestRunner(dynamodb_metric_writer, args.executable, args.debug)
     runner.run_looped_test(args.iterations)
