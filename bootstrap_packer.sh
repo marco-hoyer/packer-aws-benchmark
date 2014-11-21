@@ -23,8 +23,3 @@ mv packer packer.io
 mv packer* /usr/bin
 
 echo "Finished packer installation"
-echo "You can execute packer with packer.io <params>"
-
-echo "Runnging benchmark in $GOPATH/benchmark"
-cd $GOPATH/benchmark
-./run.sh

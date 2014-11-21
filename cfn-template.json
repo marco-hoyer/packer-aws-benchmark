@@ -181,8 +181,9 @@
                             "cd /tmp\n",
                             "git clone https://github.com/marco-hoyer/packer-aws-benchmark.git\n",
                             "cd /tmp/packer-aws-benchmark\n",
-                            "chmod +x bootstrap_packer_test.sh\n",
-                            "./bootstrap_packer_test.sh"
+                            "chmod +x bootstrap_packer.sh\n",
+                            "./bootstrap_packer.sh\n",
+                            "python /tmp/packer-aws-benchmark/benchmark/timed_test_runner.py 'packer.io build template.json' standard\n"
                         ]]
                     }
                 }
