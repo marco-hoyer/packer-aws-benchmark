@@ -128,6 +128,36 @@
                 "CidrIp": "10.0.0.0/8"
             }
         },
+        "myDynamoDBTable" : {
+            "Type" : "AWS::DynamoDB::Table",
+            "Properties" : {
+                "TableName" : "packer_build_metrics",
+                "AttributeDefinitions" : [
+                    {
+                        "AttributeName" : "instance_type",
+                        "AttributeType" : "S"
+                    },
+                    {
+                        "AttributeName" : "config",
+                        "AttributeType" : "S"
+                    }
+                ],
+                "KeySchema" : [
+                    {
+                        "AttributeName" : "instance_type",
+                        "KeyType" : "HASH"
+                    },
+                    {
+                        "AttributeName" : "config",
+                        "KeyType" : "HASH"
+                    }
+                ],
+                "ProvisionedThroughput" : {
+                    "ReadCapacityUnits" : "1",
+                    "WriteCapacityUnits" : "1"
+                }
+            }
+        },
         "smallEC2Instance" : {
             "Type" : "AWS::EC2::Instance",
             "Properties" : {
@@ -151,8 +181,8 @@
                             "cd /tmp\n",
                             "git clone https://github.com/marco-hoyer/packer-aws-benchmark.git\n",
                             "cd /tmp/packer-aws-benchmark\n",
-                            "chmod +x bootstrap_packer.sh\n",
-                            "./bootstrap_packer.sh"
+                            "chmod +x bootstrap_packer_test.sh\n",
+                            "./bootstrap_packer_test.sh"
                         ]]
                     }
                 }
