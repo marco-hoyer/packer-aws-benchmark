@@ -115,7 +115,7 @@ def parse_arguments():
     parser.add_argument('config', help="A configuration key examining the benchmarked configuration", type=str)
     parser.add_argument('--iterations', help="Number of Packer build runs to be executed", type=int, default=10)
     parser.add_argument('--region', help="AWS region to operate within", type=str, default="eu-west-1")
-    parser.add_argument('--dynamodbtable', help="Dynamodb table name", type=str, default="packer_benchmark_metrics")
+    parser.add_argument('--dynamodbtable', help="Dynamodb table name", type=str, default="packer_build_metrics")
     parser.add_argument("--localrun", help="Run on ec2 instance", action="store_true", default=False)
     return parser.parse_args()
 

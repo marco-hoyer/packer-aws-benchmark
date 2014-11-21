@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description" : "Definition for loghandling stack combining elasticsearch with logstash and kibana.",
+    "Description" : "Stack for packer performance testing using different kinds of ec2 instances and ebs volumes",
     "Parameters": {
         "amiId": {
             "Description": "AMI ID",
@@ -149,7 +149,7 @@
                     },
                     {
                         "AttributeName" : "config",
-                        "KeyType" : "HASH"
+                        "KeyType" : "RANGE"
                     }
                 ],
                 "ProvisionedThroughput" : {
