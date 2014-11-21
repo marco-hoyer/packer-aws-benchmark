@@ -1,6 +1,6 @@
 {
   "variables": {
-    "provisioning_script": "provision.sh",
+    "provisioning_script": "/tmp/packer-aws-benchmark/benchmark/provision.sh",
     "source_ami": "ami-6e7bd919",
     "creation_time": "{{isotime `20060102150405`}}"
   },
